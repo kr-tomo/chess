@@ -24,39 +24,65 @@ def stem(yt, wt, wb=16, yb=111):
             f"C{50+wb-5} {b:.1f} {50+wt} {a:.1f} {50+wt} {yt} Z")
 
 
-PLINTH = [('body', 'R', 25, 118, 50, 10, 5), ('body', 'R', 30, 109, 40, 11, 5)]
+PLINTH = [('body', 'R', 21, 119, 58, 9, 4.5), ('body', 'R', 26, 112, 48, 8, 4),
+          ('body', 'E', 50, 111, 22, 3.4)]
+
+
+def ring(y, rx, ry=3.6):
+    return ('body', 'E', 50, y, rx, ry)
 
 
 def classic_parts(t):
     if t == 'P':
-        return PLINTH + [('body', 'P', stem(66, 7, 16)), ('body', 'E', 50, 66, 13, 4),
-                         ('body', 'C', 50, 52, 12), ('hl', 'E', 45, 47, 4.5, 3)]
+        return PLINTH + [('body', 'P', stem(66, 6.5, 15.5, 110)), ring(88, 12.5, 3), ring(68, 14.5, 4),
+                         ('body', 'R', 36, 62, 28, 6, 3), ('body', 'C', 50, 49, 12.5),
+                         ('hl', 'E', 45.5, 44.5, 4, 3.2)]
     if t == 'R':
-        return PLINTH + [('body', 'P', stem(60, 9, 17)), ('body', 'R', 34, 55, 32, 8, 3),
-                         ('body', 'P', "M33 34 H40 V41 H46 V34 H54 V41 H60 V34 H67 V54 L64 58 H36 L33 54 Z"),
-                         ('line', 'P', "M35 50 H65")]
+        return PLINTH + [('body', 'P', stem(70, 10, 16.5, 110)), ring(92, 13.5, 3), ring(72, 15, 3.6),
+                         ('body', 'P', "M34 70 L36.5 48 H63.5 L66 70 Z"),
+                         ('body', 'R', 31, 41, 38, 8, 2.5),
+                         ('body', 'P', "M31 41 V22 H41 V30 H45 V22 H55 V30 H59 V22 H69 V41 Z"),
+                         ('dark', 'R', 47.5, 53, 5, 11, 2), ('dark', 'R', 38, 53, 3.6, 8, 1.6),
+                         ('dark', 'R', 58.4, 53, 3.6, 8, 1.6),
+                         ('hl', 'E', 36.5, 33, 2.4, 8), ('line', 'P', "M31.5 41 H68.5")]
     if t == 'B':
-        return PLINTH + [('body', 'P', stem(66, 7, 16)), ('body', 'E', 50, 66, 14, 4),
-                         ('body', 'P', "M50 30 C63 38 66 52 59 64 L41 64 C34 52 37 38 50 30 Z"),
-                         ('body', 'C', 50, 27, 5), ('line', 'P', "M54 40 L46 53"), ('hl', 'E', 45, 46, 3, 7)]
+        return PLINTH + [('body', 'P', stem(70, 7, 15.5, 110)), ring(90, 12.5, 3), ring(72, 15, 3.8),
+                         ('body', 'R', 37, 63, 26, 6, 3),
+                         ('body', 'P', "M50 20 C62 30 68 44 63 57 C61 62 57 64 50 64 C43 64 39 62 37 57 C32 44 38 30 50 20 Z"),
+                         ('body', 'C', 50, 17, 5.4),
+                         ('dark', 'P', "M55.5 33 C58.6 36 54.2 44 44.6 49.8 C48 43 52 38 55.5 33 Z"),
+                         ('hl', 'E', 42.5, 43, 2.8, 8)]
     if t == 'Q':
-        return PLINTH + [('body', 'P', stem(64, 9, 18)), ('body', 'E', 50, 64, 17, 5),
-                         ('body', 'P', "M31 48 L32 32 L41 42 L45 27 L50 40 L55 27 L59 42 L68 32 L69 48 "
-                                       "C69 58 60 62 50 62 C40 62 31 58 31 48 Z"),
-                         ('body', 'C', 32, 29, 3.4), ('body', 'C', 45, 24, 3.4),
-                         ('body', 'C', 55, 24, 3.4), ('body', 'C', 68, 29, 3.4)]
+        return PLINTH + [('body', 'P', stem(72, 8.5, 17, 110)), ring(92, 14, 3.2), ring(74, 16.5, 4),
+                         ('body', 'R', 33, 66, 34, 7, 3.5),
+                         ('body', 'P', "M32 62 L29 25 L34.5 40 L39 17 L44.5 36 L50 13 L55.5 36 L61 17 L65.5 40 L71 25 L68 62 "
+                                       "C66 68 58 70 50 70 C42 70 34 68 32 62 Z"),
+                         ('body', 'E', 50, 61, 19.5, 4.4),
+                         ('body', 'C', 29, 23, 3.4), ('body', 'C', 39, 15.5, 3.4), ('body', 'C', 50, 11.5, 3.6),
+                         ('body', 'C', 61, 15.5, 3.4), ('body', 'C', 71, 23, 3.4),
+                         ('line', 'P', "M40 48 L41 59 M50 44 V59 M60 48 L59 59"), ('hl', 'E', 42, 44, 2.4, 8)]
     if t == 'K':
-        return PLINTH + [('body', 'P', stem(64, 9, 18)), ('body', 'E', 50, 64, 17, 5),
-                         ('body', 'P', "M33 62 C31 47 39 37 50 37 C61 37 69 47 67 62 Z"),
-                         ('body', 'R', 46, 8, 8, 28, 2), ('body', 'R', 39, 15, 22, 8, 2),
-                         ('hl', 'E', 42, 48, 3.5, 6)]
+        return PLINTH + [('body', 'P', stem(72, 8.5, 17, 110)), ring(92, 14, 3.2), ring(74, 16.5, 4),
+                         ('body', 'R', 33, 66, 34, 7, 3.5),
+                         ('body', 'P', "M32 64 C29 48 37 36 50 36 C63 36 71 48 68 64 C60 69 40 69 32 64 Z"),
+                         ('body', 'E', 50, 62, 19, 4.4),
+                         ('line', 'P', "M38 60 C37 48 43 40 50 38 C57 40 63 48 62 60"),
+                         ('line', 'P', "M50 38 V60"),
+                         ('body', 'R', 46, 5, 8, 32, 2.5), ('body', 'R', 38, 12, 24, 8, 2.5),
+                         ('hl', 'E', 41.5, 50, 2.6, 8)]
     if t == 'N':
-        return PLINTH + [('body', 'P',
-                          "M32 110 C32 98 34 90 40 82 C34 82 28 78 26 72 C24 68 22 66 20 62 C18 58 20 54 24 50 "
-                          "C28 46 32 42 34 38 L38 26 L44 34 C48 32 52 32 54 34 C66 42 72 60 72 80 "
-                          "C72 92 70 102 68 110 Z"),
-                         ('line', 'P', "M55 38 C64 48 68 64 66 86"), ('dark', 'C', 38, 47, 2.6),
-                         ('dark', 'C', 22, 59, 1.5), ('hl', 'E', 36, 58, 2.6, 7)]
+        return PLINTH + [('body', 'P', stem(96, 12, 17, 110)), ring(98, 14.5, 3.2),
+                         ('body', 'P',
+                          "M30 104 C28 94 31 86 37 80 C41 76 42 73 38 71 C29 69 22 65 20 59 C19 55 21 52 25 50 "
+                          "C29 48 32 45 33 41 L34 31 L37 22 L41 29 C43 25 45 21 47 18 L49 28 "
+                          "C60 30 70 44 71 64 C72 80 71 94 69 104 Z"),
+                         ('line', 'P', "M49 30 C59 33 65 45 66 62 C67 76 66 90 64 102"),
+                         ('line', 'P', "M45 38 C52 42 58 54 59 68 C60 80 59 90 57 98"),
+                         ('line', 'P', "M42 48 C47 54 51 64 52 76"),
+                         ('line', 'P', "M23 59 Q29 65 36 63"),
+                         ('line', 'P', "M25 51 L34 58 M35 44 C39 52 38 60 33 66"),
+                         ('dark', 'C', 34.5, 40, 2.6), ('dark', 'E', 22.5, 56.5, 1.5, 2.4),
+                         ('hl', 'C', 33.6, 39.2, 0.9), ('hl', 'E', 38, 78, 2.4, 6)]
     raise KeyError(t)
 
 
@@ -112,6 +138,70 @@ def creature_parts(t):
     raise KeyError(t)
 
 
+def lego_parts(t):
+    out = []
+
+    def brick(x, y, w, h, n=0):
+        out.append(('body', 'R', x, y, w, h, 2.2))
+        out.append(('hl', 'R', x + 2.2, y + 2, 3, h - 4, 1.5))
+        for k in range(n):
+            sx = x + w * (k + .5) / n
+            out.append(('body', 'R', sx - 4.6, y - 3.6, 9.2, 5, 2))
+            out.append(('body', 'E', sx, y - 3.6, 4.6, 2.2))
+
+    def rbrick(cx, y, w, h, studs=True):   # 원통형(둥근) 브릭
+        out.append(('body', 'R', cx - w / 2, y, w, h, w / 2.6))
+        out.append(('hl', 'R', cx - w / 2 + 3, y + 4, 3, h - 8, 1.5))
+        if studs:
+            out.append(('body', 'R', cx - 4.6, y - 3.4, 9.2, 5, 2))
+            out.append(('body', 'E', cx, y - 3.4, 4.6, 2.2))
+
+    # 공통 받침: 넓은 판 + 한 단
+    brick(22, 113, 56, 13, 5)
+    if t == 'P':
+        brick(32, 98, 36, 15, 3)
+        rbrick(50, 72, 28, 26)
+    elif t == 'R':
+        brick(31, 98, 38, 15, 3)
+        brick(31, 82, 38, 16, 3)
+        brick(27, 64, 46, 18, 0)
+        for x in (27, 43.7, 60.4):
+            brick(x, 51, 12.6, 13, 1)
+    elif t == 'N':
+        brick(31, 98, 38, 15, 3)
+        out.append(('body', 'P', "M31 98 V70 L27 62 V52 L40 38 L42 26 L52 28 L58 38 L69 48 V98 Z"))
+        out.append(('hl', 'R', 34, 70, 3, 22, 1.5))
+        out.append(('body', 'R', 45.4, 22, 9.2, 5, 2)); out.append(('body', 'E', 50, 22, 4.6, 2.2))
+        out.append(('body', 'R', 58, 44, 9.2, 5, 2)); out.append(('body', 'E', 62.6, 44, 4.6, 2.2))
+        out.append(('dark', 'C', 41, 48, 2.8)); out.append(('hl', 'C', 40.2, 47.2, 0.9))
+        out.append(('dark', 'E', 29.5, 57, 1.6, 2.4))
+        out.append(('line', 'P', "M54 36 L62 52 L62 90"))
+    elif t == 'B':
+        brick(33, 98, 34, 15, 3)
+        brick(37, 78, 26, 20, 0)
+        rbrick(50, 54, 24, 24, False)
+        out.append(('body', 'R', 45, 46, 10, 6, 2)); out.append(('body', 'E', 50, 46, 5, 2.4))
+        out.append(('body', 'C', 50, 40, 5))
+        out.append(('dark', 'P', "M53 56 L58 58 L49 74 L45 72 Z"))
+    elif t == 'Q':
+        brick(33, 98, 34, 15, 3)
+        brick(36, 76, 28, 22, 0)
+        brick(30, 62, 40, 14, 0)
+        for x, h in ((30, 22), (38.6, 14), (47.2, 28), (55.8, 14), (64.4, 22)):
+            out.append(('body', 'R', x, 62 - h, 8.2, h, 2))
+            out.append(('body', 'C', x + 4.1, 62 - h, 4.6))
+    elif t == 'K':
+        brick(33, 98, 34, 15, 3)
+        brick(36, 76, 28, 22, 0)
+        brick(30, 62, 40, 14, 0)
+        brick(33, 50, 34, 12, 0)
+        out.append(('body', 'R', 44, 12, 12, 40, 2.2))
+        out.append(('body', 'R', 33, 22, 34, 12, 2.2))
+        out.append(('hl', 'R', 46, 16, 3, 32, 1.5))
+        out.append(('body', 'R', 45.4, 8, 9.2, 5, 2)); out.append(('body', 'E', 50, 8, 4.6, 2.2))
+    return out
+
+
 # ---------------------------------------------------------------- 테마 정의
 def cyl(stops):
     return dict(kind='h', stops=stops)
@@ -132,13 +222,11 @@ THEMES = [
          b=dict(fill=cyl(['#26344f', '#8aa2cc', '#1b2a47', '#060b18']), stroke='#04070f', line='#02040a', so=.9),
          board=dict(light='#efe7d4', dark='#25262b', grain=False, ov=('#f6f669', '#146432', '#cdd26a', '#3b82f6')),
          ui=dict(bg1='#1f5560', bg2='#07151b', f1='#b98f58', f2='#5b3f24', filter='drop-shadow(0 3px 2px rgba(0,0,0,.5))')),
-    dict(id='neon', name='네온', parts=classic_parts,
-         w=dict(fill=cyl(['#157e94', '#d2fcff', '#3fd3ea', '#0a4a5e']), stroke='#a8f4ff', line='#06323f', so=.95, sw=2),
-         b=dict(fill=cyl(['#55197a', '#f1b0ff', '#b441d8', '#31104f']), stroke='#f4c4ff', line='#2a0640', so=.95, sw=2),
-         board=dict(light='#1f2f58', dark='#0e1733', grain=False, grid='#2d5fa8',
-                    ov=('#38e8ff', '#38e8ff', '#ff4fd8', '#ffd84a')),
-         ui=dict(bg1='#14265a', bg2='#040815', f1='#19e3ff', f2='#07374d',
-                 filter='drop-shadow(0 0 4px rgba(90,230,255,.55)) drop-shadow(0 3px 2px rgba(0,0,0,.5))')),
+    dict(id='lego', name='레고 블럭', parts=lego_parts,
+         w=dict(fill=vert('#ff6a5c', '#c7281c'), stroke='#6e0f08', line='#6e0f08', so=.9, sw=1.8),
+         b=dict(fill=vert('#4f95ff', '#1646b8'), stroke='#08205e', line='#08205e', so=.9, sw=1.8),
+         board=dict(light='#e8e1cc', dark='#7ea06c', grain=False, studs=True, ov=('#ffd91a', '#0d5c9e', '#ffe97a', '#ff7a1a')),
+         ui=dict(bg1='#2a4f7a', bg2='#0a1624', f1='#f2c500', f2='#8a6f00', filter='drop-shadow(0 3px 2px rgba(0,0,0,.45))')),
     dict(id='creature', name='크리처 (오리지널)', parts=creature_parts, scale=1.1,
          w=dict(fill=vert('#ffd89a', '#ec7a22'), belly='#fff3d2', accent='#e23b2e', stroke='#6a2b0c', line='#6a2b0c', so=.9, sw=1.8),
          b=dict(fill=vert('#9ad6ff', '#2f6fd6'), belly='#e8f6ff', accent='#1f46a8', stroke='#0f2a66', line='#0f2a66', so=.9, sw=1.8),
@@ -226,6 +314,12 @@ def build_board(th):
     if bd.get('dots'):
         extra_l = '<g fill="#a9d36c" opacity=".55"><circle cx="20" cy="25" r="3"/><circle cx="70" cy="40" r="2.5"/><circle cx="45" cy="78" r="3"/><circle cx="85" cy="85" r="2"/></g>'
         extra_d = '<g fill="#6fae47" opacity=".55"><circle cx="30" cy="30" r="3"/><circle cx="75" cy="60" r="2.5"/><circle cx="20" cy="80" r="3"/><circle cx="60" cy="88" r="2"/></g>'
+    if bd.get('studs'):
+        for key, base in (('l', bd['light']), ('d', bd['dark'])):
+            st = ('<circle cx="50" cy="53" r="21" fill="#000" opacity=".22"/><circle cx="50" cy="50" r="21" fill="#fff" opacity=".28"/>'
+                  '<circle cx="50" cy="50" r="17" fill="' + base + '"/><ellipse cx="45" cy="44" rx="6" ry="4" fill="#fff" opacity=".35"/>')
+            if key == 'l': extra_l += st
+            else: extra_d += st
     if bd.get('grid'):
         g = f'<rect x=".75" y=".75" width="98.5" height="98.5" fill="none" stroke="{bd["grid"]}" stroke-opacity=".45" stroke-width="1.5"/>'
         extra_l += g; extra_d += g
