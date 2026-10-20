@@ -1,6 +1,6 @@
-const CACHE = 'chess-v4';
+const CACHE = 'chess-v6';
 const ASSETS = ['./', 'index.html', 'style.css', 'game.js', 'engine.js', 'ai-worker.js', 'sprites.js',
-  't-steel-pieces.svg', 't-steel-board.svg', 't-classic-pieces.svg', 't-classic-board.svg', 't-lego-pieces.svg', 't-lego-board.svg', 't-creature-pieces.svg', 't-creature-board.svg', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
+  't-steel-pieces.png', 't-steel-board.png', 't-classic-pieces.png', 't-classic-board.png', 't-lego-pieces.png', 't-lego-board.png', 't-creature-pieces.png', 't-creature-board.png', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => Promise.all(ASSETS.map(a => c.add(a).catch(() => {})))).then(() => self.skipWaiting()));

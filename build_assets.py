@@ -25,50 +25,67 @@ def stem(yt, wt, wb=16, yb=111):
 
 
 PLINTH = [('body', 'R', 21, 119, 58, 9, 4.5), ('body', 'R', 26, 112, 48, 8, 4),
-          ('body', 'E', 50, 111, 22, 3.4)]
+          ('body', 'E', 50, 111, 22, 3.4),
+          ('fine', 'P', "M23.5 123.6 H76.5"), ('fine', 'P', "M28.5 116.2 H71.5")]
 
 
 def ring(y, rx, ry=3.6):
     return ('body', 'E', 50, y, rx, ry)
 
 
+def beads(y, x0, x1, n, r):
+    return [('bead', 'C', x0 + (x1 - x0) * k / (n - 1), y, r) for k in range(n)]
+
+
 def classic_parts(t):
     if t == 'P':
         return PLINTH + [('body', 'P', stem(66, 6.5, 15.5, 110)), ring(88, 12.5, 3), ring(68, 14.5, 4),
-                         ('body', 'R', 36, 62, 28, 6, 3), ('body', 'C', 50, 49, 12.5),
-                         ('hl', 'E', 45.5, 44.5, 4, 3.2)]
+                         ('body', 'R', 36, 62, 28, 6, 3), ('fine', 'P', "M38 64.6 H62"),
+                         ('body', 'E', 50, 62, 10.5, 2.4), ('body', 'C', 50, 49, 12.5),
+                         ('hl', 'E', 45.5, 44.5, 4, 3.2), ('hl', 'C', 43, 42.5, 1.4)]
     if t == 'R':
         return PLINTH + [('body', 'P', stem(70, 10, 16.5, 110)), ring(92, 13.5, 3), ring(72, 15, 3.6),
                          ('body', 'P', "M34 70 L36.5 48 H63.5 L66 70 Z"),
+                         ('fine', 'P', "M36 58 H64"), ('fine', 'P', "M35 64 H65"),
                          ('body', 'R', 31, 41, 38, 8, 2.5),
+                         ('body', 'R', 34, 24, 32, 12, 0),
+                         ('inner', 'R', 34, 24, 32, 12, 0),
                          ('body', 'P', "M31 41 V22 H41 V30 H45 V22 H55 V30 H59 V22 H69 V41 Z"),
                          ('dark', 'R', 47.5, 53, 5, 11, 2), ('dark', 'R', 38, 53, 3.6, 8, 1.6),
                          ('dark', 'R', 58.4, 53, 3.6, 8, 1.6),
-                         ('hl', 'E', 36.5, 33, 2.4, 8), ('line', 'P', "M31.5 41 H68.5")]
+                         ('hl', 'E', 36.5, 33, 2.4, 8), ('line', 'P', "M31.5 41 H68.5"),
+                         ('fine', 'P', "M41 22 V30 M45 22 V30 M55 22 V30 M59 22 V30")]
     if t == 'B':
-        return PLINTH + [('body', 'P', stem(70, 7, 15.5, 110)), ring(90, 12.5, 3), ring(72, 15, 3.8),
+        return PLINTH + [('body', 'P', stem(70, 7, 15.5, 110)), ring(90, 12.5, 3), ring(72, 15, 3.8)] + \
+               beads(66.4, 40, 60, 6, 1.5) + [
                          ('body', 'R', 37, 63, 26, 6, 3),
                          ('body', 'P', "M50 20 C62 30 68 44 63 57 C61 62 57 64 50 64 C43 64 39 62 37 57 C32 44 38 30 50 20 Z"),
-                         ('body', 'C', 50, 17, 5.4),
+                         ('fine', 'P', "M38.5 58 C45 61 55 61 61.5 58"),
+                         ('body', 'E', 50, 22.5, 5.4, 2.2), ('body', 'C', 50, 17, 5.4),
                          ('dark', 'P', "M55.5 33 C58.6 36 54.2 44 44.6 49.8 C48 43 52 38 55.5 33 Z"),
-                         ('hl', 'E', 42.5, 43, 2.8, 8)]
+                         ('hl', 'E', 42.5, 43, 2.8, 8), ('hl', 'C', 48.2, 14.8, 1.5)]
     if t == 'Q':
         return PLINTH + [('body', 'P', stem(72, 8.5, 17, 110)), ring(92, 14, 3.2), ring(74, 16.5, 4),
                          ('body', 'R', 33, 66, 34, 7, 3.5),
                          ('body', 'P', "M32 62 L29 25 L34.5 40 L39 17 L44.5 36 L50 13 L55.5 36 L61 17 L65.5 40 L71 25 L68 62 "
                                        "C66 68 58 70 50 70 C42 70 34 68 32 62 Z"),
-                         ('body', 'E', 50, 61, 19.5, 4.4),
+                         ('inner', 'P', "M44.5 36 L50 13 L55.5 36 L50 52 Z"),
+                         ('body', 'E', 50, 61, 19.5, 4.4)] + beads(61.4, 34, 66, 9, 1.5) + [
                          ('body', 'C', 29, 23, 3.4), ('body', 'C', 39, 15.5, 3.4), ('body', 'C', 50, 11.5, 3.6),
                          ('body', 'C', 61, 15.5, 3.4), ('body', 'C', 71, 23, 3.4),
-                         ('line', 'P', "M40 48 L41 59 M50 44 V59 M60 48 L59 59"), ('hl', 'E', 42, 44, 2.4, 8)]
+                         ('body', 'C', 50, 50, 2.4), ('body', 'C', 41, 53, 1.8), ('body', 'C', 59, 53, 1.8),
+                         ('line', 'P', "M40 48 L41 59 M60 48 L59 59"), ('hl', 'E', 42, 44, 2.4, 8),
+                         ('hl', 'C', 38.5, 14, 1.2), ('hl', 'C', 49, 10, 1.3)]
     if t == 'K':
         return PLINTH + [('body', 'P', stem(72, 8.5, 17, 110)), ring(92, 14, 3.2), ring(74, 16.5, 4),
                          ('body', 'R', 33, 66, 34, 7, 3.5),
                          ('body', 'P', "M32 64 C29 48 37 36 50 36 C63 36 71 48 68 64 C60 69 40 69 32 64 Z"),
-                         ('body', 'E', 50, 62, 19, 4.4),
-                         ('line', 'P', "M38 60 C37 48 43 40 50 38 C57 40 63 48 62 60"),
-                         ('line', 'P', "M50 38 V60"),
+                         ('body', 'E', 50, 62, 19, 4.4)] + beads(62.3, 34.5, 65.5, 9, 1.5) + [
+                         ('line', 'P', "M38 59 C37 48 43 40 50 38 C57 40 63 48 62 59"),
+                         ('line', 'P', "M50 38 V59"),
                          ('body', 'R', 46, 5, 8, 32, 2.5), ('body', 'R', 38, 12, 24, 8, 2.5),
+                         ('body', 'C', 50, 6, 4), ('body', 'C', 38.5, 16, 3.8), ('body', 'C', 61.5, 16, 3.8),
+                         ('body', 'C', 50, 16, 2.4), ('fine', 'P', "M50 10 V33"),
                          ('hl', 'E', 41.5, 50, 2.6, 8)]
     if t == 'N':
         return PLINTH + [('body', 'P', stem(96, 12, 17, 110)), ring(98, 14.5, 3.2),
@@ -76,13 +93,18 @@ def classic_parts(t):
                           "M30 104 C28 94 31 86 37 80 C41 76 42 73 38 71 C29 69 22 65 20 59 C19 55 21 52 25 50 "
                           "C29 48 32 45 33 41 L34 31 L37 22 L41 29 C43 25 45 21 47 18 L49 28 "
                           "C60 30 70 44 71 64 C72 80 71 94 69 104 Z"),
+                         ('inner', 'P', "M49 30 C59 33 66 46 67 66 C67 78 66 90 64 102 C62 90 62 78 61 66 C60 50 55 38 49 30 Z"),
+                         ('inner', 'P', "M45 38 C52 42 58 54 59 68 C59 78 58 88 56 98 C55 86 55 74 53 64 C51 54 48 46 45 38 Z"),
+                         ('inner', 'P', "M35.5 33 L37 24.5 L40.5 30 Z"), ('inner', 'P', "M44 28 L47 20 L48.5 28 Z"),
                          ('line', 'P', "M49 30 C59 33 65 45 66 62 C67 76 66 90 64 102"),
                          ('line', 'P', "M45 38 C52 42 58 54 59 68 C60 80 59 90 57 98"),
                          ('line', 'P', "M42 48 C47 54 51 64 52 76"),
+                         ('fine', 'P', "M40 56 C44 62 44 70 40 74 M29 74 C34 78 40 78 44 74"),
                          ('line', 'P', "M23 59 Q29 65 36 63"),
                          ('line', 'P', "M25 51 L34 58 M35 44 C39 52 38 60 33 66"),
-                         ('dark', 'C', 34.5, 40, 2.6), ('dark', 'E', 22.5, 56.5, 1.5, 2.4),
-                         ('hl', 'C', 33.6, 39.2, 0.9), ('hl', 'E', 38, 78, 2.4, 6)]
+                         ('groove', 'E', 34.5, 40, 4.4, 3.5), ('dark', 'C', 34.5, 40.2, 2.7),
+                         ('dark', 'E', 22.5, 56.5, 1.5, 2.4), ('fine', 'P', "M21 53 C24 52 26 54 26 56"),
+                         ('white', 'C', 33.6, 39.3, 0.9), ('hl', 'E', 38, 78, 2.4, 6), ('hl', 'E', 30, 50, 1.4, 3)]
     raise KeyError(t)
 
 
@@ -212,22 +234,24 @@ def vert(top, bottom):
 
 
 THEMES = [
-    dict(id='classic', name='클래식 우드', parts=classic_parts,
+    dict(id='classic', name='클래식 우드', parts=classic_parts, shine=.75, felt='#1d3a24',
+         tex=dict(f=(.55, .018, 11), w=(.45, .30, .10), sw=.22, b=(.75, .55, .40), sb=.10),
          w=dict(fill=cyl(['#e6d6ae', '#fffaf0', '#e8d8ae', '#a68c5a']), stroke='#4a3418', line='#6b4c22', so=.75),
          b=dict(fill=cyl(['#4a382c', '#9a7e68', '#3d2a1e', '#120a05']), stroke='#000000', line='#000000', so=.85),
          board=dict(light='#ecd6ae', dark='#a9703f', grain=True, ov=('#f6f669', '#146432', '#cdd26a', '#3b82f6')),
          ui=dict(bg1='#3d2c20', bg2='#120b07', f1='#6b4423', f2='#2e1c0e', filter='drop-shadow(0 3px 2px rgba(0,0,0,.45))')),
-    dict(id='steel', name='스틸 & 네이비', parts=classic_parts,
+    dict(id='steel', name='스틸 & 네이비', parts=classic_parts, shine=.95, felt='#101a2c',
+         tex=dict(f=(.02, .75, 5), w=(1, 1, 1), sw=.10, b=(.7, .8, 1), sb=.10),
          w=dict(fill=cyl(['#aab3bd', '#ffffff', '#cfd6de', '#6f7a87']), stroke='#2a3038', line='#4b5560', so=.8),
          b=dict(fill=cyl(['#26344f', '#8aa2cc', '#1b2a47', '#060b18']), stroke='#04070f', line='#02040a', so=.9),
          board=dict(light='#efe7d4', dark='#25262b', grain=False, ov=('#f6f669', '#146432', '#cdd26a', '#3b82f6')),
          ui=dict(bg1='#1f5560', bg2='#07151b', f1='#b98f58', f2='#5b3f24', filter='drop-shadow(0 3px 2px rgba(0,0,0,.5))')),
-    dict(id='lego', name='레고 블럭', parts=lego_parts,
+    dict(id='lego', name='레고 블럭', parts=lego_parts, shine=.55,
          w=dict(fill=vert('#ff6a5c', '#c7281c'), stroke='#6e0f08', line='#6e0f08', so=.9, sw=1.8),
          b=dict(fill=vert('#4f95ff', '#1646b8'), stroke='#08205e', line='#08205e', so=.9, sw=1.8),
          board=dict(light='#e8e1cc', dark='#7ea06c', grain=False, studs=True, ov=('#ffd91a', '#0d5c9e', '#ffe97a', '#ff7a1a')),
          ui=dict(bg1='#2a4f7a', bg2='#0a1624', f1='#f2c500', f2='#8a6f00', filter='drop-shadow(0 3px 2px rgba(0,0,0,.45))')),
-    dict(id='creature', name='크리처 (오리지널)', parts=creature_parts, scale=1.1,
+    dict(id='creature', name='크리처 (오리지널)', parts=creature_parts, scale=1.1, shine=.45,
          w=dict(fill=vert('#ffd89a', '#ec7a22'), belly='#fff3d2', accent='#e23b2e', stroke='#6a2b0c', line='#6a2b0c', so=.9, sw=1.8),
          b=dict(fill=vert('#9ad6ff', '#2f6fd6'), belly='#e8f6ff', accent='#1f46a8', stroke='#0f2a66', line='#0f2a66', so=.9, sw=1.8),
          board=dict(light='#d3ec9f', dark='#8fc964', grain=False, dots=True, ov=('#fff06a', '#1a6b30', '#f5e36a', '#4a8cff')),
@@ -236,34 +260,60 @@ THEMES = [
 
 
 # ---------------------------------------------------------------- SVG 출력
-def part_svg(p, team, tid):
-    role, shape, *a = p
-    st = team
-    sw = st.get('sw', 1.5)
-    fill = {'body': f"url(#g{tid}{'w' if team is TW else 'b'})", 'belly': st.get('belly', '#fff'),
-            'accent': st.get('accent', '#999'), 'white': '#ffffff', 'dark': '#231813', 'line': 'none',
-            'hl': '#ffffff'}[role]
-    if role == 'line':
-        stroke = f' stroke="{st["line"]}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"'
-    elif role == 'hl':
-        stroke = ' opacity=".42"'
-    elif role == 'dark':
-        stroke = ''
-    else:
-        stroke = f' stroke="{st["stroke"]}" stroke-opacity="{st["so"]}" stroke-width="{sw}" stroke-linejoin="round"'
-    f = f' fill="{fill}"' if role != 'line' else ''
+def geo(shape, a):
     if shape == 'P':
-        return f'<path d="{a[0]}"{f}{stroke}/>'
+        return 'path', f'd="{a[0]}"'
     if shape == 'C':
-        return f'<circle cx="{a[0]}" cy="{a[1]}" r="{a[2]}"{f}{stroke}/>'
+        return 'circle', f'cx="{a[0]}" cy="{a[1]}" r="{a[2]}"'
     if shape == 'E':
-        return f'<ellipse cx="{a[0]}" cy="{a[1]}" rx="{a[2]}" ry="{a[3]}"{f}{stroke}/>'
+        return 'ellipse', f'cx="{a[0]}" cy="{a[1]}" rx="{a[2]}" ry="{a[3]}"'
     if shape == 'R':
-        return f'<rect x="{a[0]}" y="{a[1]}" width="{a[2]}" height="{a[3]}" rx="{a[4]}"{f}{stroke}/>'
+        return 'rect', f'x="{a[0]}" y="{a[1]}" width="{a[2]}" height="{a[3]}" rx="{a[4]}"'
     raise ValueError(shape)
 
 
 TW = TB = None
+
+
+def part_svg(p, team, tid):
+    role, shape, *a = p
+    tag, g = geo(shape, a)
+    sid = 'w' if team is TW else 'b'
+    sw = team.get('sw', 1.5)
+    st = f'stroke="{team["stroke"]}" stroke-opacity="{team["so"]}" stroke-width="{{w}}" stroke-linejoin="round"'
+    shine = f'<{tag} {g} fill="url(#sh{tid})"/>'
+    if role == 'body':
+        return f'<{tag} {g} fill="url(#g{tid}{sid})" {st.format(w=sw)}/>' + shine
+    if role == 'bead':
+        return f'<{tag} {g} fill="url(#g{tid}{sid})" {st.format(w=sw * .55)}/>' + shine
+    if role in ('belly', 'accent'):
+        c = team.get('belly' if role == 'belly' else 'accent', '#999')
+        return f'<{tag} {g} fill="{c}" {st.format(w=sw)}/>' + shine
+    if role == 'white':
+        return f'<{tag} {g} fill="#fff" {st.format(w=sw)}/>'
+    if role == 'dark':
+        return f'<{tag} {g} fill="#231813"/>'
+    if role == 'hl':
+        return f'<{tag} {g} fill="#fff" opacity=".42"/>'
+    if role == 'inner':
+        return f'<{tag} {g} fill="#000" opacity=".2"/>'
+    if role == 'line':
+        return f'<{tag} {g} fill="none" stroke="{team["line"]}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'
+    if role == 'fine':
+        return f'<{tag} {g} fill="none" stroke="{team["line"]}" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>'
+    if role == 'groove':
+        return f'<{tag} {g} fill="#000" fill-opacity=".28" stroke="#000" stroke-opacity=".35" stroke-width="1" />'
+    raise KeyError(role)
+
+
+def ring_extras(p):
+    """고리(타원) 아래쪽 그늘 선과 위쪽 반사 선 — 입체감"""
+    role, shape, *a = p
+    if role == 'body' and shape == 'E' and a[2] >= 10 and a[3] <= 6:
+        cx, cy, rx, ry = a
+        return (f'<path d="M{cx-rx} {cy} A{rx} {ry} 0 0 0 {cx+rx} {cy}" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="1.7"/>'
+                f'<path d="M{cx-rx+2} {cy-.6} A{rx-2} {ry-.6} 0 0 1 {cx+rx-2} {cy-.6}" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="1.1"/>')
+    return ''
 
 
 def gradient_def(tid, c, team):
@@ -277,24 +327,49 @@ def gradient_def(tid, c, team):
             f'<stop offset="0" stop-color="{s[0]}"/><stop offset="1" stop-color="{s[1]}"/></linearGradient>')
 
 
+def shine_def(tid, k):
+    return (f'<linearGradient id="sh{tid}" gradientUnits="userSpaceOnUse" x1="20" y1="0" x2="80" y2="0">'
+            f'<stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".2" stop-color="#fff" stop-opacity="{.55*k:.2f}"/>'
+            f'<stop offset=".34" stop-color="#fff" stop-opacity="0"/><stop offset=".62" stop-color="#000" stop-opacity="0"/>'
+            f'<stop offset="1" stop-color="#000" stop-opacity="{.42*k:.2f}"/></linearGradient>')
+
+
+def tex_def(tid, c, tx, rgb, strength):
+    r, g, b = rgb
+    return (f'<filter id="tx{tid}{c}" filterUnits="userSpaceOnUse" x="-10" y="-10" width="120" height="160" color-interpolation-filters="sRGB">'
+            f'<feTurbulence type="fractalNoise" baseFrequency="{tx[0]} {tx[1]}" numOctaves="3" seed="{tx[2]}" result="n"/>'
+            f'<feColorMatrix in="n" type="matrix" values="0 0 0 0 {r}  0 0 0 0 {g}  0 0 0 0 {b}  {strength*2.4:.2f} 0 0 0 {-strength*1.1:.2f}" result="gr"/>'
+            f'<feComposite in="gr" in2="SourceAlpha" operator="in" result="gc"/>'
+            f'<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="gc"/></feMerge></filter>')
+
+
 def build_pieces(th):
     global TW, TB
     TW, TB = th['w'], th['b']
     tid = th['id'][:2]
+    defs = [gradient_def(tid, 'w', TW), gradient_def(tid, 'b', TB), shine_def(tid, th.get('shine', .5))]
+    tx = th.get('tex')
+    if tx:
+        defs.append(tex_def(tid, 'w', tx['f'], tx['w'], tx['sw']))
+        defs.append(tex_def(tid, 'b', tx['f'], tx['b'], tx['sb']))
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{CW*6}" height="{CH*2}" viewBox="0 0 {CW*6} {CH*2}">',
-           '<defs>', gradient_def(tid, 'w', TW), gradient_def(tid, 'b', TB), '</defs>']
+           '<defs>', ''.join(defs), '</defs>']
     for row, team in enumerate((TW, TB)):
+        sid = 'w' if row == 0 else 'b'
         for col, t in enumerate(TYPES):
             out.append(f'<g transform="translate({col*CW},{row*CH})">')
-            out.append('<ellipse cx="50" cy="125" rx="29" ry="5.5" fill="#000" opacity=".30"/>')
+            out.append('<ellipse cx="50" cy="126" rx="30" ry="5.5" fill="#000" opacity=".32"/>')
+            if th.get('felt'):
+                out.append(f'<ellipse cx="50" cy="128" rx="26.5" ry="3.2" fill="{th["felt"]}"/>')
+            out.append(f'<g filter="url(#tx{tid}{sid})">' if tx else '<g>')
             sc = th.get('scale', 1)
             if sc != 1:
                 out.append(f'<g transform="translate(50 125) scale({sc}) translate(-50 -125)">')
             for p in th['parts'](t):
-                out.append(part_svg(p, team, tid))
+                out.append(part_svg(p, team, tid) + ring_extras(p))
             if sc != 1:
                 out.append('</g>')
-            out.append('</g>')
+            out.append('</g></g>')
     out.append('</svg>')
     return ''.join(out)
 
@@ -426,15 +501,29 @@ def build_icons():
         im.save(os.path.join(OUT, f'icon-{size}.png'))
 
 
+def render_png(svg_path, png_path, w, h, scale=3):
+    """Chromium(Playwright)으로 SVG를 투명 PNG로 렌더링"""
+    from playwright.sync_api import sync_playwright
+    html = os.path.join(os.path.dirname(svg_path), '_render.html')
+    open(html, 'w').write(f'<body style="margin:0;background:transparent"><img id="i" src="{os.path.basename(svg_path)}" width="{w}" height="{h}" style="display:block"></body>')
+    with sync_playwright() as p:
+        exe = '/opt/pw-browsers/chromium' if os.path.exists('/opt/pw-browsers/chromium') else None
+        b = p.chromium.launch(executable_path=exe) if exe else p.chromium.launch()
+        pg = b.new_context(viewport={'width': w, 'height': h}, device_scale_factor=scale).new_page()
+        pg.goto('file://' + html); pg.wait_for_function("document.getElementById('i').complete")
+        pg.wait_for_timeout(300)
+        pg.screenshot(path=png_path, omit_background=True, clip={'x': 0, 'y': 0, 'width': w, 'height': h})
+        b.close()
+    os.remove(html)
+
+
 if __name__ == '__main__':
-    prev = None
-    if '--preview' in sys.argv:
-        prev = sys.argv[sys.argv.index('--preview') + 1]
-        os.makedirs(prev, exist_ok=True)
+    src = os.path.join(OUT, 'src'); os.makedirs(src, exist_ok=True)
     for th in THEMES:
-        open(os.path.join(OUT, f"t-{th['id']}-pieces.svg"), 'w').write(build_pieces(th))
-        open(os.path.join(OUT, f"t-{th['id']}-board.svg"), 'w').write(build_board(th))
-        if prev:
-            preview(th, os.path.join(prev, f"{th['id']}.png"))
+        ps = os.path.join(src, f"t-{th['id']}-pieces.svg"); bs = os.path.join(src, f"t-{th['id']}-board.svg")
+        open(ps, 'w').write(build_pieces(th)); open(bs, 'w').write(build_board(th))
+        render_png(ps, os.path.join(OUT, f"t-{th['id']}-pieces.png"), CW * 6, CH * 2, 3)
+        render_png(bs, os.path.join(OUT, f"t-{th['id']}-board.png"), 800, 100, 3)
+        print('rendered', th['id'])
     build_icons()
     print('assets built')

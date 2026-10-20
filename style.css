@@ -1,4 +1,4 @@
-:root { --bs: 320px; --sq: calc(var(--bs) / 8); --ov: calc(var(--sq) * .46); --pc-aspect: 1.4; --pc-ratio: .714; --pc-bottom: .06; --bg1: #1f5560; --bg2: #07151b; --f1: #b98f58; --f2: #5b3f24; --pc-filter: none; --bg: #262421; --fg: #eeeeee; --accent: #7fa650; }
+:root { --bs: 320px; --sq: calc(var(--bs) / 8); --lab: 14px; --ov: calc(var(--sq) * .46); --pc-aspect: 1.4; --pc-ratio: .714; --pc-bottom: .06; --bg1: #1f5560; --bg2: #07151b; --f1: #b98f58; --f2: #5b3f24; --pc-filter: none; --bg: #262421; --fg: #eeeeee; --accent: #7fa650; }
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
@@ -20,11 +20,15 @@ html, body {
   position: relative; width: 100%; height: 100%;
   display: grid;
   grid-template-columns: 100%;
-  grid-template-rows: 1fr var(--bs) 1fr;
+  grid-template-rows: 1fr calc(var(--bs) + var(--ov) + var(--lab)) 1fr;
 }
-body.land #stage { grid-template-columns: 1fr var(--bs) 1fr; grid-template-rows: 100%; }
+body.land #stage { grid-template-columns: 1fr calc(var(--bs) + 2 * var(--lab)) 1fr; grid-template-rows: 100%; }
 
-#boardwrap { position: relative; width: var(--bs); height: calc(var(--bs) + var(--ov)); padding-top: var(--ov); place-self: center; }
+#boardwrap { position: relative; width: calc(var(--bs) + 2 * var(--lab)); height: calc(var(--bs) + var(--ov) + var(--lab)); padding: var(--ov) var(--lab) var(--lab); place-self: center; }
+#ranks, #files { position: absolute; display: flex; font-size: 12px; font-weight: 700; color: #e2dac8; opacity: .9; pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+#ranks { left: 0; top: var(--ov); width: var(--lab); height: var(--bs); flex-direction: column; }
+#files { left: var(--lab); bottom: 0; width: var(--bs); height: var(--lab); }
+#ranks span, #files span { flex: 1; display: flex; align-items: center; justify-content: center; }
 #board {
   display: grid; width: 100%; height: 100%;
   grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
@@ -136,3 +140,32 @@ body.land .hintbtn { flex: none; width: 100%; }
 .thbtn.on { border-color: var(--accent); background: #3f4a33; }
 .thprev { display: flex; align-items: flex-end; justify-content: center; gap: 4px; width: 100%; height: 62px; border-radius: 8px; overflow: hidden; padding-bottom: 3px; }
 .thpc { background-repeat: no-repeat; }
+
+/* 기보 표시줄 */
+.log {
+  width: 100%; max-width: 520px; height: 28px; overflow: hidden; white-space: nowrap; flex: none;
+  font: 600 13px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.tk { display: inline-block; padding: 6px 7px; margin: 0 2px; border-radius: 7px; background: rgba(255,255,255,.08); }
+.tk.cur { background: var(--accent); color: #fff; }
+.tk.ed { color: #e5a93c; }
+.tk.ph { background: none; opacity: .6; font-weight: 400; }
+body.replaying .tk { cursor: pointer; }
+.rpinfo .nm { max-width: 100%; overflow: hidden; text-overflow: ellipsis; color: #e5a93c; }
+.row.rp { flex-wrap: nowrap; gap: 6px; }
+.row.rp[hidden] { display: none; }
+.row.rp .primary { flex: 1; min-width: 0; padding: 0 6px; white-space: nowrap; font-size: 13px; }
+body.land .row.rp { flex-wrap: wrap; justify-content: center; }
+.btnrow.wrap { flex-wrap: wrap; justify-content: flex-end; }
+.btnrow2 { display: flex; flex-wrap: wrap; gap: 8px; }
+.btnrow2 .btn { flex: 1 1 auto; }
+input[type=text] { -webkit-user-select: text; user-select: text; width: 100%; font-size: 16px; padding: 10px 12px; border-radius: 10px; border: 1px solid #58534c; background: #24211e; color: var(--fg); font-family: inherit; }
+.recrow { display: flex; align-items: center; gap: 6px; padding: 8px 0; border-bottom: 1px solid #3d3a35; }
+.recinfo { flex: 1; min-width: 0; }
+.recinfo b { display: block; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recinfo .rm { display: block; font-size: 11px; opacity: .65; margin-top: 2px; }
+.empty { padding: 18px 0; text-align: center; opacity: .7; }
+.recrow .btn { min-height: 36px; padding: 0 9px; font-size: 13px; }
+.recrow .btn.icon { width: 40px; padding: 0; }

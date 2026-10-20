@@ -13,8 +13,8 @@
   const cell = { light: 0, dark: 1, select: 2, dot: 3, ring: 4, last: 5, check: 6, hint: 7 };
   const mk = (id, name, ui) => ({
     id, name, ui,
-    pieces: { src: `t-${id}-pieces.svg`, cols: 6, rows: 2, col: { P: 0, N: 1, B: 2, R: 3, Q: 4, K: 5 }, row: { w: 0, b: 1 }, aspect: 1.4, bottom: 0.06 },
-    board: { src: `t-${id}-board.svg`, cols: 8, rows: 1, cell }
+    pieces: { src: `t-${id}-pieces.png`, cols: 6, rows: 2, col: { P: 0, N: 1, B: 2, R: 3, Q: 4, K: 5 }, row: { w: 0, b: 1 }, aspect: 1.4, bottom: 0.06 },
+    board: { src: `t-${id}-board.png`, cols: 8, rows: 1, cell }
   });
   window.THEMES = [
     mk('steel', '스틸 & 네이비', { bg1: '#1f5560', bg2: '#07151b', f1: '#b98f58', f2: '#5b3f24', pv: ['#efe7d4', '#25262b'], filter: 'drop-shadow(0 3px 2px rgba(0,0,0,.5))' }),

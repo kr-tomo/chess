@@ -21,6 +21,7 @@
   <section class="panel" id="p-opp">
     <div class="row top"><span class="dot"></span><span class="nm"></span><span class="cap"></span></div>
     <div class="row act"><button class="btn hintbtn"></button></div>
+    <div class="row rpinfo" hidden><span class="nm" id="rp-title"></span></div>
     <div class="row editinfo" hidden>
       <span class="nm">✎ 편집 모드</span>
       <button class="btn" id="btn-turn"></button>
@@ -30,13 +31,24 @@
 
   <main id="boardwrap">
     <div id="board"></div>
+    <div id="ranks" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div id="files" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <div id="toast"></div>
   </main>
 
   <section class="panel" id="p-me">
     <div class="row top"><span class="dot"></span><span class="nm"></span><span class="cap"></span></div>
+    <div class="log" id="log"></div>
+    <div class="row rp" hidden>
+      <button class="btn icon" id="rp-play" aria-label="재생/일시정지">⏸</button>
+      <button class="btn icon" id="rp-prev" aria-label="한 수 뒤로">◀</button>
+      <button class="btn icon" id="rp-next" aria-label="한 수 앞으로">▶</button>
+      <button class="btn primary" id="rp-resume">이대로 게임 하기</button>
+      <button class="btn icon" id="rp-exit" aria-label="리플레이 종료">✕</button>
+    </div>
     <div class="row act">
       <button class="btn hintbtn"></button>
+      <button class="btn icon" id="btn-undo" aria-label="무르기">↶</button>
       <button class="btn icon" id="btn-menu" aria-label="설정">☰</button>
       <button class="btn icon" id="btn-flip" aria-label="판 뒤집기">⇅</button>
       <label class="sw"><input type="checkbox" id="editsw"><span class="knob"></span><em>편집</em></label>
@@ -55,6 +67,12 @@
   </div>
   <h3>내 색 (컴퓨터 모드)</h3>
   <div class="seg" id="seg-color"><button data-v="1">백</button><button data-v="-1">흑</button></div>
+  <h3>기보</h3>
+  <div class="btnrow2">
+    <button class="btn" id="btn-open-records">📂 지난 기보 불러오기</button>
+    <button class="btn" id="btn-save-now">현재 기보 저장</button>
+    <button class="btn" id="btn-replay-now">이번 판 리플레이</button>
+  </div>
   <h3>변형 룰 <small>(이후 두는 수부터 적용)</small></h3>
   <div id="opts"></div>
   <div class="btnrow">
@@ -67,7 +85,12 @@
 <div class="modal" id="picker"><div class="sheet"><h3>놓을 기물</h3><div class="pick" id="picker-list"></div>
   <div class="btnrow"><button class="btn" id="btn-picker-cancel">취소</button></div></div></div>
 <div class="modal" id="result"><div class="sheet small"><h2 id="result-title"></h2><p id="result-why"></p>
-  <div class="btnrow"><button class="btn" id="btn-result-close">보드 보기</button><button class="btn primary" id="btn-result-new">새 게임</button></div></div></div>
+  <div class="btnrow wrap"><button class="btn" id="btn-save-rec">기보 저장</button><button class="btn" id="btn-replay">▶ 리플레이</button><button class="btn" id="btn-result-close">보드 보기</button><button class="btn primary" id="btn-result-new">새 게임</button></div></div></div>
+<div class="modal" id="records"><div class="sheet"><h2>기보 보관함</h2><div id="rec-list"></div>
+  <div class="btnrow"><button class="btn primary" id="btn-close-records">닫기</button></div></div></div>
+<div class="modal" id="namebox"><div class="sheet small"><h3 id="name-title">기보 이름</h3>
+  <input id="name-in" type="text" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <div class="btnrow"><button class="btn" id="name-cancel">취소</button><button class="btn primary" id="name-ok">확인</button></div></div></div>
 
 <script src="sprites.js"></script>
 <script src="engine.js"></script>
