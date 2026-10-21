@@ -1,4 +1,4 @@
-const CACHE = 'chess-v6';
+const CACHE = 'chess-v7';
 const ASSETS = ['./', 'index.html', 'style.css', 'game.js', 'engine.js', 'ai-worker.js', 'sprites.js',
   't-steel-pieces.png', 't-steel-board.png', 't-classic-pieces.png', 't-classic-board.png', 't-lego-pieces.png', 't-lego-board.png', 't-creature-pieces.png', 't-creature-board.png', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 

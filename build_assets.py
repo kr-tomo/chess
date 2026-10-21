@@ -251,7 +251,7 @@ THEMES = [
          b=dict(fill=vert('#4f95ff', '#1646b8'), stroke='#08205e', line='#08205e', so=.9, sw=1.8),
          board=dict(light='#e8e1cc', dark='#7ea06c', grain=False, studs=True, ov=('#ffd91a', '#0d5c9e', '#ffe97a', '#ff7a1a')),
          ui=dict(bg1='#2a4f7a', bg2='#0a1624', f1='#f2c500', f2='#8a6f00', filter='drop-shadow(0 3px 2px rgba(0,0,0,.45))')),
-    dict(id='creature', name='크리처 (오리지널)', parts=creature_parts, scale=1.1, shine=.45,
+    dict(id='creature', name='포켓몬스터', parts=creature_parts, scale=1.1, shine=.45, custom_png=True,
          w=dict(fill=vert('#ffd89a', '#ec7a22'), belly='#fff3d2', accent='#e23b2e', stroke='#6a2b0c', line='#6a2b0c', so=.9, sw=1.8),
          b=dict(fill=vert('#9ad6ff', '#2f6fd6'), belly='#e8f6ff', accent='#1f46a8', stroke='#0f2a66', line='#0f2a66', so=.9, sw=1.8),
          board=dict(light='#d3ec9f', dark='#8fc964', grain=False, dots=True, ov=('#fff06a', '#1a6b30', '#f5e36a', '#4a8cff')),
@@ -521,8 +521,10 @@ if __name__ == '__main__':
     src = os.path.join(OUT, 'src'); os.makedirs(src, exist_ok=True)
     for th in THEMES:
         ps = os.path.join(src, f"t-{th['id']}-pieces.svg"); bs = os.path.join(src, f"t-{th['id']}-board.svg")
-        open(ps, 'w').write(build_pieces(th)); open(bs, 'w').write(build_board(th))
-        render_png(ps, os.path.join(OUT, f"t-{th['id']}-pieces.png"), CW * 6, CH * 2, 3)
+        open(bs, 'w').write(build_board(th))
+        if not th.get('custom_png'):   # custom_png: 제공받은 일러스트로 tools/make_creature_sheet.py 가 만든 PNG를 그대로 사용
+            open(ps, 'w').write(build_pieces(th))
+            render_png(ps, os.path.join(OUT, f"t-{th['id']}-pieces.png"), CW * 6, CH * 2, 3)
         render_png(bs, os.path.join(OUT, f"t-{th['id']}-board.png"), 800, 100, 3)
         print('rendered', th['id'])
     build_icons()

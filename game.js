@@ -304,12 +304,13 @@
     st.setProperty('--pc-aspect', String(p.aspect));
     st.setProperty('--pc-ratio', String(1 / p.aspect));
     st.setProperty('--pc-bottom', String(p.bottom));
+    st.setProperty('--ov', `calc(var(--sq) * ${(p.aspect - 0.96).toFixed(3)})`);   // 기물이 보드 위로 넘어가는 높이
     st.setProperty('--bg1', u.bg1); st.setProperty('--bg2', u.bg2);
     st.setProperty('--f1', u.f1); st.setProperty('--f2', u.f2);
     st.setProperty('--pc-filter', u.filter);
     document.documentElement.setAttribute('data-theme', SP.id);
   }
-  function setTheme(id) { S.theme = id; save(); applyTheme(); buildBoard(); render(); buildMenu(); }
+  function setTheme(id) { S.theme = id; save(); applyTheme(); layout(); buildBoard(); render(); buildMenu(); }
 
   function buildBoard() {
     boardEl.innerHTML = ''; cells.length = 0;
@@ -438,7 +439,7 @@
   // ---------- 레이아웃: 어떤 비율에서도 스크롤 없이 보드를 최대로 ----------
   function layout() {
     const st = $('#stage'), r = st.getBoundingClientRect();
-    const W = r.width, H = r.height, pad = 8, lab = 14, PH = 112, LW = 172, k = 1 + .46 / 8;   // k: 기물이 보드 위로 넘어가는 높이, lab: 축 좌표 여백
+    const W = r.width, H = r.height, pad = 8, lab = 14, PH = 112, LW = 172, k = 1 + (SP.pieces.aspect - 0.96) / 8;   // k: 기물이 보드 위로 넘어가는 높이, lab: 축 좌표 여백
     const bp = Math.min(W - 2 * (pad + lab), (H - 2 * PH - lab) / k), bl = Math.min((H - 2 * pad - lab) / k, W - 2 * LW - 2 * lab);
     const land = bl > bp;
     let bs = Math.max(land ? bl : bp, 120);
