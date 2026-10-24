@@ -12,6 +12,9 @@ except Exception:
     Image = None
 
 OUT = os.path.dirname(os.path.abspath(__file__))
+SPR = os.path.join(OUT, 'assets', 'sprites')   # 게임이 읽는 PNG 스프라이트
+ICO = os.path.join(OUT, 'assets', 'icons')
+SRCD = os.path.join(OUT, 'assets', 'src')       # SVG 원본
 TYPES = ['P', 'N', 'B', 'R', 'Q', 'K']
 CW, CH = 100, 140
 
@@ -484,7 +487,7 @@ def build_icons():
             + '<circle cx="256" cy="226" r="70" fill="#f6ecd4" stroke="#2b1c0e" stroke-width="14"/>'
               '<path d="M196 392C204 330 226 300 256 296C286 300 308 330 316 392Z" fill="#f6ecd4" stroke="#2b1c0e" stroke-width="14" stroke-linejoin="round"/>'
               '</svg>')
-    open(os.path.join(OUT, 'icon.svg'), 'w').write(icon)
+    open(os.path.join(ICO, 'icon.svg'), 'w').write(icon)
     if Image is None:
         return
     for size in (180, 192, 512):
@@ -498,7 +501,7 @@ def build_icons():
         d.ellipse([186 * s, 156 * s, 326 * s, 296 * s], fill=(246, 236, 212), outline=(43, 28, 14), width=max(2, int(14 * s)))
         d.polygon([(196 * s, 392 * s), (204 * s, 330 * s), (226 * s, 300 * s), (256 * s, 296 * s), (286 * s, 300 * s), (308 * s, 330 * s), (316 * s, 392 * s)],
                   fill=(246, 236, 212), outline=(43, 28, 14))
-        im.save(os.path.join(OUT, f'icon-{size}.png'))
+        im.save(os.path.join(ICO, f'icon-{size}.png'))
 
 
 def render_png(svg_path, png_path, w, h, scale=3):
@@ -518,14 +521,15 @@ def render_png(svg_path, png_path, w, h, scale=3):
 
 
 if __name__ == '__main__':
-    src = os.path.join(OUT, 'src'); os.makedirs(src, exist_ok=True)
+    src = SRCD
+    for d in (SPR, ICO, SRCD): os.makedirs(d, exist_ok=True)
     for th in THEMES:
         ps = os.path.join(src, f"t-{th['id']}-pieces.svg"); bs = os.path.join(src, f"t-{th['id']}-board.svg")
         open(bs, 'w').write(build_board(th))
         if not th.get('custom_png'):   # custom_png: 제공받은 일러스트로 tools/make_creature_sheet.py 가 만든 PNG를 그대로 사용
             open(ps, 'w').write(build_pieces(th))
-            render_png(ps, os.path.join(OUT, f"t-{th['id']}-pieces.png"), CW * 6, CH * 2, 3)
-        render_png(bs, os.path.join(OUT, f"t-{th['id']}-board.png"), 800, 100, 3)
+            render_png(ps, os.path.join(SPR, f"t-{th['id']}-pieces.png"), CW * 6, CH * 2, 3)
+        render_png(bs, os.path.join(SPR, f"t-{th['id']}-board.png"), 800, 100, 3)
         print('rendered', th['id'])
     build_icons()
     print('assets built')

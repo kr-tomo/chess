@@ -18,7 +18,7 @@
   const DEFAULT_OPTS = { castling: true, ep: true, dbl: true, promoChoice: true, fifty: true, threefold: true, insufficient: true, kingCapture: false };
 
   // ---------- 설정 ----------
-  const S = { mode: 'pvp', human: 1, flip: false, theme: THEMES[0].id, opts: { ...DEFAULT_OPTS }, hintPref: { w: 0, b: 0 } };
+  const S = { mode: 'pvp', human: 1, flip: false, theme: THEMES[0].id, opts: { ...DEFAULT_OPTS }, hintPref: { w: 0, b: 0 }, tc: { on: false, base: 5, inc: 3 } };
   try {
     const raw = JSON.parse(localStorage.getItem('chess-settings') || 'null');
     if (raw) {
@@ -26,10 +26,15 @@
       if (raw.human === 1 || raw.human === -1) S.human = raw.human;
       if (THEMES.some(t => t.id === raw.theme)) S.theme = raw.theme;
       if (raw.opts) for (const k in DEFAULT_OPTS) if (typeof raw.opts[k] === 'boolean') S.opts[k] = raw.opts[k];
+      if (raw.tc) {
+        S.tc.on = !!raw.tc.on;
+        if (isFinite(raw.tc.base)) S.tc.base = Math.min(180, Math.max(0.5, +raw.tc.base));
+        if (isFinite(raw.tc.inc)) S.tc.inc = Math.min(180, Math.max(0, Math.round(+raw.tc.inc)));
+      }
       if (raw.hintPref) S.hintPref = { w: (raw.hintPref.w | 0) % 6, b: (raw.hintPref.b | 0) % 6 };
     }
   } catch (_) {}
-  const save = () => { try { localStorage.setItem('chess-settings', JSON.stringify({ mode: S.mode, human: S.human, theme: S.theme, opts: S.opts, hintPref: S.hintPref })); } catch (_) {} };
+  const save = () => { try { localStorage.setItem('chess-settings', JSON.stringify({ mode: S.mode, human: S.human, theme: S.theme, opts: S.opts, hintPref: S.hintPref, tc: S.tc })); } catch (_) {} };
 
   // ---------- AI (Worker, 실패 시 메인 스레드) ----------
   const AI = {
@@ -82,6 +87,7 @@
       rec, hist: [], replay: null, saved: false, preEdit: null, anim: null
     };
     G.keys.push({ key: C.key(G.s), ply: 0 });
+    resetClocks();
     document.body.classList.remove('replaying');
     $('#editsw').checked = false;
     const r = refreshLegal();
@@ -98,12 +104,70 @@
 
   function snap() {
     return { s: G.s, ply: G.ply, keys: G.keys.slice(), fiftyStart: G.fiftyStart, threefoldStart: G.threefoldStart, last: G.last,
-      cap: { w: G.capturedBy.w.slice(), b: G.capturedBy.b.slice() }, hints: { ...G.hints }, recLen: G.rec.length };
+      cap: { w: G.capturedBy.w.slice(), b: G.capturedBy.b.slice() }, hints: { ...G.hints }, recLen: G.rec.length,
+      clk: G.clock && S.tc.on ? { ...G.clock.ts } : null };
   }
   function restore(sn) {
     G.s = sn.s; G.ply = sn.ply; G.keys = sn.keys.slice(); G.fiftyStart = sn.fiftyStart; G.threefoldStart = sn.threefoldStart;
     G.last = sn.last; G.capturedBy = { w: sn.cap.w.slice(), b: sn.cap.b.slice() }; G.hints = { ...sn.hints };
     G.rec.length = sn.recLen;
+    if (sn.clk && S.tc.on) {   // 무르기: 그 수를 두기 전(그 차례가 시작될 때)의 시간으로 되돌림
+      G.clock.w = sn.clk.w; G.clock.b = sn.clk.b; G.clock.ts = { ...sn.clk }; G.clock.last = Date.now();
+    }
+  }
+
+  // ---------- 타임 컨트롤 ----------
+  const tcMs = () => Math.round(S.tc.base * 60000);
+  function resetClocks() {
+    const t = tcMs();
+    G.clock = { w: t, b: t, ts: { w: t, b: t }, last: Date.now() };
+  }
+  function clockRunning() {
+    return S.tc.on && !G.over && !G.edit && !G.replay && !['#menu', '#records', '#namebox', '#result'].some(id => $(id).classList.contains('on'));
+  }
+  // 흐른 시간을 차례인 쪽에서 차감 (착수하면 차례가 넘어가므로 별도 스위치 없음)
+  function tickClock() {
+    const c = G && G.clock; if (!c) return;
+    const now = Date.now(), dt = now - c.last; c.last = now;
+    if (!clockRunning()) return;
+    const side = ck(G.s.t);
+    c[side] = Math.max(0, c[side] - dt);
+    if (c[side] <= 0) flagFall(G.s.t);
+  }
+  function flagFall(color) {
+    cancelPending(); hide('#promo'); hide('#picker');
+    let onlyKing = true;
+    for (let i = 0; i < 64; i++) { const p = G.s.b[i]; if (p && (p > 0 ? 1 : -1) === -color && Math.abs(p) !== 6) onlyKing = false; }
+    G.over = onlyKing ? { r: 'd', why: '시간 초과 (상대 기물 부족)' } : { r: color === 1 ? 'b' : 'w', why: '시간 초과' };
+    G.sel = -1; G.hintMove = null; G.legal = [];
+    updateClocks(); render(); showResult();
+  }
+  function fmtClock(ms) {
+    if (ms < 20000) { const t = Math.max(0, Math.ceil(ms / 100)); return `0:${pad2(Math.floor(t / 10))}.${t % 10}`; }
+    const s = Math.ceil(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+    return h ? `${h}:${pad2(m)}:${pad2(s % 60)}` : `${m}:${pad2(s % 60)}`;
+  }
+  function updateClocks() {
+    if (!G) return;
+    const show = S.tc.on && !G.replay && G.clock, bottom = bottomColor();
+    for (const k of ['opp', 'me']) {
+      const el = PN[k].clk; el.hidden = !show; if (!show) continue;
+      const color = k === 'me' ? bottom : -bottom, ms = G.clock[ck(color)];
+      el.textContent = fmtClock(ms);
+      el.classList.toggle('on', clockRunning() && G.s.t === color);
+      el.classList.toggle('low', ms < 10000);
+      el.classList.toggle('dead', ms <= 0);
+    }
+  }
+  function setTC(on) {
+    S.tc.on = on; save(); resetClocks(); updateClocks(); render();   // 켜는 순간 처음부터 다시 시작
+  }
+  function tcInputs() {
+    const b = parseFloat($('#tc-base').value), i = parseFloat($('#tc-inc').value);
+    S.tc.base = isFinite(b) ? Math.min(180, Math.max(0.5, Math.round(b * 2) / 2)) : S.tc.base;
+    S.tc.inc = isFinite(i) ? Math.min(180, Math.max(0, Math.round(i))) : S.tc.inc;
+    $('#tc-base').value = S.tc.base; $('#tc-inc').value = S.tc.inc;
+    save(); if (S.tc.on) { resetClocks(); updateClocks(); }
   }
   function undo() {
     if (!G || G.replay || G.edit || !G.hist.length) return;
@@ -328,7 +392,7 @@
   const PN = {};
   for (const k of ['opp', 'me']) {
     const el = $(k === 'me' ? '#p-me' : '#p-opp');
-    PN[k] = { el, dot: el.querySelector('.dot'), nm: el.querySelector('.top .nm'), cap: el.querySelector('.cap'), hint: el.querySelector('.hintbtn'), act: el.querySelector('.act'), top: el.querySelector('.top') };
+    PN[k] = { el, dot: el.querySelector('.dot'), nm: el.querySelector('.top .nm'), cap: el.querySelector('.cap'), hint: el.querySelector('.hintbtn'), act: el.querySelector('.act'), top: el.querySelector('.top'), clk: el.querySelector('.clk') };
   }
   const editInfo = $('#p-opp .editinfo'), rpInfo = $('#p-opp .rpinfo');
 
@@ -427,7 +491,7 @@
     }
     boardEl.classList.toggle('edit', V.edit);
     renderPanel('opp', V); renderPanel('me', V);
-    renderLog();
+    renderLog(); updateClocks();
   }
 
   let toastTimer = 0;
@@ -492,6 +556,7 @@
   }
 
   function doMove(m) {
+    tickClock(); if (G.over) return;   // 착수 순간까지의 시간 정산 (시간 초과면 착수 무효)
     G.hist.push(snap());
     G.rec.push({ k: 'm', f: m.f, to: m.t, p: m.p || 0, fl: m.fl || null, n: G.s.fm, w: G.s.t === 1,
       txt: sqName(m.f) + sqName(m.t) + (m.p ? ' pnbrq'[m.p] : '') });
@@ -501,7 +566,11 @@
     }
     if (cap !== 0) G.capturedBy[ck(side)].push(Math.abs(cap));
     else if (m.fl === 'ep') G.capturedBy[ck(side)].push(1);
+    const mover = G.s.t;
     G.s = C.make(G.s, m);
+    if (S.tc.on && G.clock) {   // 인크리먼트: 착수한 쪽에 추가 시간
+      G.clock[ck(mover)] += S.tc.inc * 1000; G.clock.ts = { w: G.clock.w, b: G.clock.b }; G.clock.last = Date.now();
+    }
     G.ply++;
     G.keys.push({ key: C.key(G.s), ply: G.ply });
     G.last = { f: m.f, t: m.t }; G.anim = { f: m.f, t: m.t };
@@ -640,6 +709,7 @@
       row.append(txt, label); box.appendChild(row);
     }
     setSeg('#seg-mode', S.mode); setSeg('#seg-color', S.human);
+    $('#tc-on').checked = S.tc.on; $('#tc-base').value = S.tc.base; $('#tc-inc').value = S.tc.inc;
   }
   function setOpt(k, v) {
     S.opts[k] = v; save();
@@ -671,6 +741,9 @@
     $('#btn-turn').onclick = () => { G.s = { ...G.s, t: -G.s.t, ep: -1 }; editChanged(); render(); };
     $('#btn-new').onclick = () => { newGame(); };
     $('#btn-undo').onclick = undo;
+    $('#tc-on').onchange = e => setTC(e.target.checked);
+    $('#tc-base').addEventListener('change', tcInputs);
+    $('#tc-inc').addEventListener('change', tcInputs);
     $('#btn-open-records').onclick = openRecords;
     $('#btn-save-now').onclick = () => { hide('#menu'); saveCurrent(); };
     $('#btn-replay-now').onclick = () => { if (G.over) startReplay(G.rec, '이번 판'); };
@@ -707,6 +780,7 @@
   applyTheme();
   buildBoard();
   bind();
+  setInterval(() => { tickClock(); updateClocks(); }, 100);
   layout();
   newGame();
   window.__chess = { get G() { return G; }, S, C };
