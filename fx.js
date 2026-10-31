@@ -12,6 +12,7 @@ const PB = { ready: false };
 window.PB = PB;
 
 let game = null, scene = null, theme = THEMES[0], view = null, pending = null, geo = { x0: 0, y0: 0, sq: 40, d: 1 };
+const live = new Set();          // 만들어진 모든 기물 (누수 방지용 등록부)
 const pcs = new Map();           // 칸 -> 기물 {cont, spr, sh, code, sq, lift}
 const bgImgs = [];
 let overlays = [];
@@ -91,7 +92,8 @@ function makePiece(code, sq) {
   const sh = scene.add.image(0, -geo.sq * 0.02, 'shadow').setScale(geo.sq * 0.95 / 128).setAlpha(0.5);
   const spr = scene.add.image(0, 0, key, frameOf(code)).setOrigin(0.5, 1).setScale(s);
   cont.add([sh, spr]);
-  const pc = { cont, spr, sh, code, sq, lift: 0 };
+  const pc = { cont, spr, sh, code, sq, lift: 0, owned: false };
+  live.add(pc);
   placePiece(pc, sq);
   return pc;
 }
@@ -105,10 +107,16 @@ function placePiece(pc, sq) {
 }
 function killPiece(pc) {
   if (!pc) return;
+  live.delete(pc);
+  if (!pc.cont.scene) return;
   scene.tweens.killTweensOf([pc.cont, pc.sh, pc.spr]);
   pc.cont.destroy();
 }
-function clearPieces() { for (const pc of pcs.values()) killPiece(pc); pcs.clear(); }
+function clearPieces() { for (const pc of [...live]) if (!pc.owned) killPiece(pc); pcs.clear(); }
+function sweep() {   // 지도에 없는 떠돌이 기물 제거
+  const mine = new Set(pcs.values());
+  for (const pc of [...live]) { if (!pc.cont.scene) { live.delete(pc); continue; } if (!mine.has(pc) && !pc.owned) killPiece(pc); }
+}
 
 function setLift(pc, on) {
   const want = on ? 1 : 0; if (pc.lift === want) return; pc.lift = want;
@@ -157,7 +165,7 @@ const AFTER = (a, ms, fn) => { const e = scene.time.delayedCall(ms, fn); a.tm.pu
 function temp(a, obj) { a.temps.add(obj); return obj; }
 function dispose(a, obj) { if (!obj || !obj.scene) { a.temps.delete(obj); return; } scene.tweens.killTweensOf(obj); obj.destroy(); a.temps.delete(obj); }
 
-function finishAnim(a) {
+function finishAnim(a, quiet) {
   if (a.done) return; a.done = true;
   for (const t of a.tw) { try { t.stop(); } catch (_) {} }
   for (const e of a.tm) { try { e.remove(false); } catch (_) {} }
@@ -165,8 +173,9 @@ function finishAnim(a) {
   for (const f of a.finishHooks) f();
   for (const s of a.locks) locked.delete(s);
   anims.delete(a);
+  if (!quiet && !anims.size && view && PB.ready) { reconcile(); sweep(); }
 }
-function finishAll() { for (const a of [...anims]) finishAnim(a); }
+function finishAll() { for (const a of [...anims]) finishAnim(a, true); }
 const busy = () => { for (const a of anims) if (!a.settled) return true; return false; };
 
 function ghost(a, pc, alpha, add) {
@@ -276,7 +285,8 @@ function startMoveAnim(an, prev) {
   const victim = vSq >= 0 ? pcs.get(vSq) : null;
   const castle = Math.abs(code) === 6 && Math.abs((an.t & 7) - (an.f & 7)) === 2;
   const knight = Math.abs(code) === 2;
-  // 소유권 이전: 출발 칸 -> 도착 칸
+  // 소유권 이전: 잡힌 기물은 지도에서 먼저 빼고(소유 표시), 출발 칸 -> 도착 칸
+  if (victim) { pcs.delete(vSq); victim.owned = true; }
   pcs.delete(an.f); pcs.set(an.t, mover);
   a.locks.push(an.f, an.t); locked.add(an.f); locked.add(an.t);
   let rook = null;
@@ -328,7 +338,7 @@ function startMoveAnim(an, prev) {
   const wx = p0.x - vx * geo.sq * 0.2, wy = p0.y - vy * geo.sq * 0.2;
   const qx = vf.x - vx * geo.sq * 0.36, qy = vf.y - vy * geo.sq * 0.36;
   const pokemon = theme.id === 'creature';
-  victim.gone = false; locked.add(vSq); a.locks.push(vSq); pcs.delete(vSq);
+  victim.gone = false; locked.add(vSq); a.locks.push(vSq);
   victim.cont.setDepth(99); scene.tweens.killTweensOf([victim.cont, victim.sh]);
   window.SFX && SFX.play('swish');
   T(a, { targets: mover.cont, x: wx, y: wy, scaleX: 1.08, scaleY: 0.9, rotation: -dir * 0.12, duration: 120 * k, ease: 'Quad.easeOut', onComplete: () => {
@@ -392,7 +402,7 @@ function sync(v) {
   if (bkChanged || builtKey !== theme.id + ':' + v.bottom) fullRebuild(); else placeBoard();
   let a = null;
   if (an && prev) { try { a = startMoveAnim(an, prev.b); } catch (e) { console.error(e); a = null; finishAll(); } }
-  reconcile();
+  reconcile(); sweep();
   buildOverlays();
   void a;
 }
@@ -414,6 +424,7 @@ function setTheme(th) {
   if (view) { computeGeo(); fullRebuild(); reconcile(); buildOverlays(); }
 }
 
+PB.audit = () => ({ live: [...live].filter(p => p.cont.scene).length, map: pcs.size, want: view ? Array.from(view.b).filter(x => x).length : 0, anims: anims.size, conts: scene.children.list.filter(o => o.type === 'Container').length });
 PB.sync = sync; PB.relayout = relayout; PB.setTheme = setTheme; PB.busy = busy;
 PB.whenIdle = function (cb) { const t = () => (busy() ? setTimeout(t, 40) : cb()); t(); };
 
