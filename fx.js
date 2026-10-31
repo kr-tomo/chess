@@ -4,7 +4,8 @@
  * 캔버스가 화면 전체를 덮기 때문에 기물이 판 밖(패널 위)까지 튕겨나갈 수 있다.
  * game.js 는 window.PB.sync(view) 만 부르면 된다.
  */
-import Phaser from './lib/phaser.esm.min.js';
+(function () {
+const Phaser = window.Phaser;
 
 const THEMES = window.THEMES;
 const PB = { ready: false };
@@ -440,4 +441,5 @@ class Main extends Phaser.Scene {
   PB.game = game;
   if (window.ResizeObserver) new ResizeObserver(() => relayout()).observe(document.getElementById('board'));
   window.addEventListener('resize', () => relayout());
+})();
 })();
