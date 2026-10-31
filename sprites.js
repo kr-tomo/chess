@@ -20,7 +20,7 @@
     mk('steel', '스틸 & 네이비', { bg1: '#1f5560', bg2: '#07151b', f1: '#b98f58', f2: '#5b3f24', pv: ['#efe7d4', '#25262b'], filter: 'drop-shadow(0 3px 2px rgba(0,0,0,.5))' }),
     mk('classic', '클래식 우드', { bg1: '#3d2c20', bg2: '#120b07', f1: '#6b4423', f2: '#2e1c0e', pv: ['#ecd6ae', '#a9703f'], filter: 'drop-shadow(0 3px 2px rgba(0,0,0,.45))' }),
     mk('lego', '레고 블럭', { bg1: '#2a4f7a', bg2: '#0a1624', f1: '#f2c500', f2: '#8a6f00', pv: ['#e8e1cc', '#7ea06c'], filter: 'drop-shadow(0 3px 2px rgba(0,0,0,.45))' }),
-    mk('creature', '포켓몬스터', { bg1: '#3f8650', bg2: '#10261a', f1: '#8c5a2a', f2: '#4d2f14', pv: ['#d3ec9f', '#8fc964'], filter: 'drop-shadow(0 3px 2px rgba(0,0,0,.4))' }, 1.6)
+    mk('creature', '포켓몬스터', { bg1: '#6a2a1c', bg2: '#1c0a06', f1: '#3a3a3a', f2: '#161616', pv: ['#d3ec9f', '#8fc964'], filter: 'drop-shadow(0 3px 2px rgba(0,0,0,.4))' }, 1.6)
   ];
   window.SPRITES = window.THEMES[0];
 })();
