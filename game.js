@@ -18,7 +18,7 @@
   const DEFAULT_OPTS = { castling: true, ep: true, dbl: true, promoChoice: true, fifty: true, threefold: true, insufficient: true, kingCapture: false };
 
   // ---------- 설정 ----------
-  const S = { mode: 'pvp', human: 1, flip: false, theme: THEMES[0].id, opts: { ...DEFAULT_OPTS }, hintPref: { w: 0, b: 0 }, tc: { on: false, base: 5, inc: 3 } };
+  const S = { mode: 'pvp', human: 1, flip: false, theme: THEMES[0].id, opts: { ...DEFAULT_OPTS }, hintPref: { w: 0, b: 0 }, tc: { on: false, base: 5, inc: 3 }, sound: true };
   try {
     const raw = JSON.parse(localStorage.getItem('chess-settings') || 'null');
     if (raw) {
@@ -31,10 +31,11 @@
         if (isFinite(raw.tc.base)) S.tc.base = Math.min(180, Math.max(0.5, +raw.tc.base));
         if (isFinite(raw.tc.inc)) S.tc.inc = Math.min(180, Math.max(0, Math.round(+raw.tc.inc)));
       }
+      if (raw.sound === false) S.sound = false;
       if (raw.hintPref) S.hintPref = { w: (raw.hintPref.w | 0) % 6, b: (raw.hintPref.b | 0) % 6 };
     }
   } catch (_) {}
-  const save = () => { try { localStorage.setItem('chess-settings', JSON.stringify({ mode: S.mode, human: S.human, theme: S.theme, opts: S.opts, hintPref: S.hintPref, tc: S.tc })); } catch (_) {} };
+  const save = () => { try { localStorage.setItem('chess-settings', JSON.stringify({ mode: S.mode, human: S.human, theme: S.theme, opts: S.opts, hintPref: S.hintPref, tc: S.tc, sound: S.sound })); } catch (_) {} };
 
   // ---------- AI (Worker, 실패 시 메인 스레드) ----------
   const AI = {
@@ -174,7 +175,7 @@
     cancelPending(); hide('#result'); hide('#promo');
     let sn = G.hist.pop();
     if (S.mode !== 'pvp') while (sn.s.t !== S.human && G.hist.length) sn = G.hist.pop();   // 컴퓨터 대전: 내 차례로 되돌림
-    restore(sn);
+    restore(sn); SFX.play('undo');
     G.over = null; G.sel = -1; G.hintMove = null; G.anim = null; G.saved = false;
     refreshLegal(); render(); maybeAI();
   }
@@ -276,7 +277,7 @@
   }
   function rpGo(i, anim) {
     const R = G.replay; R.idx = i;
-    G.anim = anim && R.frames[i].last ? { f: R.frames[i].last.f, t: R.frames[i].last.t } : null;
+    G.anim = anim && R.frames[i].last ? { f: R.frames[i].last.f, t: R.frames[i].last.t, fast: true } : null;
     render();
   }
   function rpPause() { const R = G.replay; if (!R) return; clearInterval(R.timer); R.playing = false; render(); }
@@ -373,19 +374,14 @@
     st.setProperty('--f1', u.f1); st.setProperty('--f2', u.f2);
     st.setProperty('--pc-filter', u.filter);
     document.documentElement.setAttribute('data-theme', SP.id);
+    if (window.PB) PB.setTheme(SP);
   }
   function setTheme(id) { S.theme = id; save(); applyTheme(); layout(); buildBoard(); render(); buildMenu(); }
 
-  function buildBoard() {
+  function buildBoard() {   // DOM 은 입력용 투명 격자만 — 그리기는 Phaser(fx.js)
     boardEl.innerHTML = ''; cells.length = 0;
     for (let i = 0; i < 64; i++) {
-      const sq = mk('sq'), bg = mk('bg'), pc = mk('pc');
-      const ov = { last: mk('ov last'), sel: mk('ov sel'), hint: mk('ov hint'), check: mk('ov check'), mv: mk('ov mv') };
-      boardSprite(ov.last, 'last'); boardSprite(ov.sel, 'select'); boardSprite(ov.hint, 'hint'); boardSprite(ov.check, 'check'); boardSprite(ov.mv, 'dot');
-      sq.append(bg, ov.last, ov.sel, ov.hint, ov.check, ov.mv, pc);
-      sq.dataset.i = i;
-      boardEl.appendChild(sq);
-      cells.push({ sq, bg, pc, ov, dark: -1, code: 99, mvKind: 'dot' });
+      const sq = mk('sq'); sq.dataset.i = i; boardEl.appendChild(sq); cells.push({ sq });
     }
   }
 
@@ -457,33 +453,16 @@
     if (V.sel >= 0 && !V.edit) for (const m of V.legal) if (m.f === V.sel) targets.add(m.t);
     const hm = V.hintMove && V.hintMove.ply === G.ply ? V.hintMove : null;
     const an = G.anim; G.anim = null;
-    for (let i = 0; i < 64; i++) {
-      const sq = bottom === 1 ? i : 63 - i, c = cells[i], p = V.s.b[sq];
-      const dark = ((sq >> 3) + (sq & 7)) & 1;
-      if (c.dark !== dark) { c.dark = dark; boardSprite(c.bg, dark ? 'dark' : 'light'); }
-      if (c.code !== p) {
-        c.code = p;
-        if (p) { pieceSprite(c.pc, p); c.pc.style.visibility = 'visible'; } else c.pc.style.visibility = 'hidden';
-      }
-      c.pc.classList.toggle('lift', V.sel === sq && !V.edit && p !== 0);
-      if (an && sq === an.t && p !== 0) {   // 이동 애니메이션: 출발 칸에서 미끄러져 도착
-        const fi = bottom === 1 ? an.f : 63 - an.f;
-        c.pc.style.setProperty('--dx', `calc(${(fi & 7) - (i & 7)} * var(--sq))`);
-        c.pc.style.setProperty('--dy', `calc(${(fi >> 3) - (i >> 3)} * var(--sq))`);
-        c.pc.classList.remove('anim'); void c.pc.offsetWidth; c.pc.classList.add('anim'); c.sq.classList.add('moving');
-        setTimeout(() => { c.pc.classList.remove('anim'); c.sq.classList.remove('moving'); }, 280);
-      }
-      c.ov.last.classList.toggle('on', !!V.last && (V.last.f === sq || V.last.t === sq));
-      c.ov.sel.classList.toggle('on', V.sel === sq && !V.edit);
-      c.ov.hint.classList.toggle('on', !!hm && (hm.f === sq || hm.t === sq));
-      c.ov.check.classList.toggle('on', chk && sq === kingSq);
-      const isT = targets.has(sq);
-      c.ov.mv.classList.toggle('on', isT);
-      if (isT) {
-        const kind = p !== 0 || V.legal.some(m => m.f === V.sel && m.t === sq && m.fl === 'ep') ? 'ring' : 'dot';
-        if (c.mvKind !== kind) { c.mvKind = kind; boardSprite(c.ov.mv, kind); }
-      }
+    const tg = new Map();
+    for (const sq of targets) {
+      const p = V.s.b[sq];
+      tg.set(sq, p !== 0 || V.legal.some(m => m.f === V.sel && m.t === sq && m.fl === 'ep') ? 'ring' : 'dot');
     }
+    if (window.PB) PB.sync({
+      b: V.s.b, bottom, last: V.last || null, sel: V.sel, edit: V.edit, targets: tg,
+      hint: hm ? { f: hm.f, t: hm.t } : null, check: chk ? kingSq : -1,
+      anim: an ? { f: an.f, t: an.t, fast: !!an.fast } : null
+    });
     // 축 좌표 (보드 바깥): 판을 뒤집으면 함께 뒤집힘
     for (let j = 0; j < 8; j++) {
       axisR[j].textContent = String(bottom === 1 ? 8 - j : j + 1);
@@ -540,6 +519,7 @@
       }
     }
     G.sel = mine && G.sel !== sq ? sq : -1;
+    if (G.sel >= 0) SFX.play('select');
     render();
   }
 
@@ -584,7 +564,7 @@
     G.over = r.over;
     render();
     if (G.over) return showResult();
-    if (C.inCheck(G.s)) toast('체크!', 1400);
+    if (C.inCheck(G.s)) { toast('체크!', 1400); setTimeout(() => SFX.play('check'), 420); }
     maybeAI();
   }
 
@@ -594,6 +574,7 @@
     $('#result-why').textContent = o.why;
     updateResultBtns();
     show('#result');
+    setTimeout(() => SFX.play(o.r === 'd' ? 'draw' : (o.why === '시간 초과' ? 'flag' : 'win')), 380);
   }
 
   function maybeAI() {
@@ -605,10 +586,14 @@
       const wait = Math.max(0, 450 - (Date.now() - started));
       setTimeout(() => {
         if (tk !== G.token) return;
-        G.thinking = false;
-        if (!mv) { render(); return; }
-        const m = G.legal.find(x => x.f === mv.f && x.t === mv.t && x.p === mv.p && x.fl === mv.fl) || mv;
-        doMove(m);
+        const go = () => {
+          if (tk !== G.token) return;
+          G.thinking = false;
+          if (!mv) { render(); return; }
+          const m = G.legal.find(x => x.f === mv.f && x.t === mv.t && x.p === mv.p && x.fl === mv.fl) || mv;
+          doMove(m);
+        };
+        if (window.PB) PB.whenIdle(go); else go();
       }, wait);
     });
   }
@@ -709,6 +694,7 @@
       row.append(txt, label); box.appendChild(row);
     }
     setSeg('#seg-mode', S.mode); setSeg('#seg-color', S.human);
+    $('#snd-on').checked = S.sound;
     $('#tc-on').checked = S.tc.on; $('#tc-base').value = S.tc.base; $('#tc-inc').value = S.tc.inc;
   }
   function setOpt(k, v) {
@@ -741,6 +727,7 @@
     $('#btn-turn').onclick = () => { G.s = { ...G.s, t: -G.s.t, ep: -1 }; editChanged(); render(); };
     $('#btn-new').onclick = () => { newGame(); };
     $('#btn-undo').onclick = undo;
+    $('#snd-on').onchange = e => { S.sound = e.target.checked; SFX.on = S.sound; save(); SFX.play('select'); };
     $('#tc-on').onchange = e => setTC(e.target.checked);
     $('#tc-base').addEventListener('change', tcInputs);
     $('#tc-inc').addEventListener('change', tcInputs);
@@ -777,6 +764,7 @@
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 
+  SFX.on = S.sound;
   applyTheme();
   buildBoard();
   bind();

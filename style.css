@@ -181,3 +181,8 @@ input[type=text], input[type=number] { -webkit-user-select: text; user-select: t
 body.land .clk { margin-top: 2px; }
 .tcset { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 8px 0 4px; }
 .tcset label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; opacity: .95; }
+
+/* Phaser 캔버스: 화면 전체를 덮는 투명 레이어 (입력은 DOM 판이 담당) */
+#fx { position: fixed; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; }
+#fx canvas { display: block; pointer-events: none; }
+.sq .bg, .sq .ov, .sq .pc { display: none; }

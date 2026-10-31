@@ -67,6 +67,9 @@
   </div>
   <h3>내 색 (컴퓨터 모드)</h3>
   <div class="seg" id="seg-color"><button data-v="1">백</button><button data-v="-1">흑</button></div>
+  <h3>효과음</h3>
+  <div class="opt"><div><b>효과음 사용</b><span class="d">이동, 잡기, 체크, 결과 소리</span></div>
+    <label class="sw"><input type="checkbox" id="snd-on"><span class="knob"></span></label></div>
   <h3>타임 컨트롤</h3>
   <div class="opt"><div><b>시간 제한 사용</b><span class="d">켜는 순간 양쪽 시계가 처음부터 다시 시작됩니다. 착수하면 시계가 자동으로 넘어갑니다.</span></div>
     <label class="sw"><input type="checkbox" id="tc-on"><span class="knob"></span></label></div>
@@ -99,8 +102,7 @@
   <input id="name-in" type="text" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false">
   <div class="btnrow"><button class="btn" id="name-cancel">취소</button><button class="btn primary" id="name-ok">확인</button></div></div></div>
 
-<script src="sprites.js"></script>
-<script src="engine.js"></script>
-<script src="game.js"></script>
+<div id="fx" aria-hidden="true"></div>
+<script type="module" src="boot.js"></script>
 </body>
 </html>
