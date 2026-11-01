@@ -74,7 +74,7 @@ function frameOf(code) {
   const pd = theme.pieces, a = Math.abs(code);
   return '' + (code > 0 ? pd.row.w : pd.row.b) + pd.col['PNBRQK'[a - 1]];
 }
-function pieceScale() { return geo.sq / scene.textures.get('p-' + theme.id).get('00').width; }
+function pieceScale() { return geo.sq * (theme.pieces.span || 1) / scene.textures.get('p-' + theme.id).get('00').width; }
 
 function placeBoard() {
   const bk = 'b-' + theme.id, sc = geo.sq / scene.textures.get(bk).get('light').width * 1.012;
@@ -303,7 +303,7 @@ function startMoveAnim(an, prev) {
   mover.cont.setScale(1).setRotation(0).setPosition(p0.x, p0.y); mover.lift = 0;
   a.finishHooks.push(() => {
     placePiece(mover, an.t);
-    if (victim && victim.cont.scene && !victim.gone) { killPiece(victim); }
+    if (victim && victim.cont.scene) killPiece(victim);   // 어떤 경로로 끝나든 잡힌 기물은 남기지 않음
     if (rook) placePiece(rook, rook.to);
     const nv = view && view.b ? view.b[an.t] : code;
     if (view && Math.abs(code) === 1 && nv && Math.abs(nv) !== 1) { /* 승급: reconcile 이 새 기물로 교체 */ }

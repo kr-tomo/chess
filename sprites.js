@@ -1,6 +1,7 @@
 /*
  * 테마/스프라이트 설정 — 리소스를 바꾸려면 같은 배치의 이미지로 교체하고 이 설정만 맞추면 됩니다.
  *
+ * span   : 시트 한 칸(프레임)의 가로 폭이 보드 몇 칸에 해당하는지 (기본 1, 기물을 칸보다 크게 그릴 때 키움)
  * pieces : 시트 한 장. cols x rows 격자, 칸 하나의 가로세로 비율이 aspect (세로/가로).
  *          기물은 칸 아래쪽에 서 있고 위로 칸을 넘어가며, 클릭 판정은 항상 보드 칸 기준입니다.
  *          col  = 기물 종류(P N B R Q K)의 열 번호, row = 색(w 백 / b 흑)의 행 번호
@@ -11,9 +12,9 @@
  */
 (function () {
   const cell = { light: 0, dark: 1, select: 2, dot: 3, ring: 4, last: 5, check: 6, hint: 7 };
-  const mk = (id, name, ui, aspect) => ({
+  const mk = (id, name, ui, aspect, span) => ({
     id, name, ui,
-    pieces: { src: `assets/sprites/t-${id}-pieces.png`, cols: 6, rows: 2, col: { P: 0, N: 1, B: 2, R: 3, Q: 4, K: 5 }, row: { w: 0, b: 1 }, aspect: aspect || 1.4, bottom: 0.06 },
+    pieces: { src: `assets/sprites/t-${id}-pieces.png`, cols: 6, rows: 2, col: { P: 0, N: 1, B: 2, R: 3, Q: 4, K: 5 }, row: { w: 0, b: 1 }, aspect: aspect || 1.4, span: span || 1, bottom: 0.06 },
     board: { src: `assets/sprites/t-${id}-board.png`, cols: 8, rows: 1, cell }
   });
   window.THEMES = [
